@@ -32,7 +32,7 @@ Suggest to use Visual Studio 2022 on Windows to create a new .NET Web API projec
 | `GET /api/todoitems`         | Get all to-do items     | None         | Array of to-do items | `200 OK`         |
 | `GET /api/todoitems/{id}`    | Get an item by ID       | None         | To-do item           | `200 OK`         |
 | `POST /api/todoitems`        | Add a new item          | To-do item   | To-do item           | `201 Created`    |
-| `PUT /api/todoitems/{id}`    | Update an existing tiem | To-do item   | None                 | `204 No Content` |
+| `PUT /api/todoitems/{id}`    | Update an existing item | To-do item   | None                 | `204 No Content` |
 | `DELETE /api/todoitems/{id}` | Delete an item          | None         | None                 | `204 No Content` |
 
 
@@ -319,7 +319,7 @@ Or access `https://localhost:{port}/swagger` to use Swagger UI to test APIs.
 
 
 
-#### PUT - Update an existing tiem
+#### PUT - Update an existing item
 
 ```c#
 // PUT: api/TodoItems/5
