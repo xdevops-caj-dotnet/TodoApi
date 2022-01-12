@@ -410,3 +410,30 @@ Or access `https://localhost:{port}/swagger` to use Swagger UI to test APIs.
 
 Use Data Transfer Object (DTO) to [prevent over-posting](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-6.0&tabs=visual-studio-code#prevent-over-posting).
 
+
+## Depoy to OpenShift
+
+```bash
+# Create openshift namespace
+oc new-project will-dotnet-demo
+
+# Deploy application
+oc new-app dotnet:6.0-ubi8~https://github.com/xdevops-caj-dotnet/TodoApi.git --name todoitems
+
+# Check build logs
+oc logs -f bc/todoitems
+
+# Expose service
+oc get svc
+oc create route edge --service todoitems
+
+# Check route of the WebApp
+oc get route
+
+
+```
+
+Access `https://todoitems-will-dotnet-demo.{CLUSTER_DOMAIN}/api/todoitems` to test APIs.
+
+References:
+- <https://github.com/xdevops-caj-dotnet/myWebApp>
