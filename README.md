@@ -443,6 +443,8 @@ References:
 
 ### Use Serilog in .NET 6
 
+Use [Serilog](https://github.com/serilog/serilog) in .NET 6 for application logging for structured log data.
+
 Add Serilog packages:
 
 ```bash
@@ -454,12 +456,25 @@ A `Program.cs` [example](https://github.com/datalust/dotnet6-serilog-example/blo
 
 A `appsettings.json` [example](https://github.com/datalust/dotnet6-serilog-example/blob/dev/appsettings.json)
 
+In `TodoItemsControllers.cs`, use Serilog to log the API calls.
+
+```c#
+using Serilog;
+
+// other codes
+Log.Information("Retrive all todo items...");
+Log.Information("Retrieved an item: {@item}", todoItem);
+Log.Information("Update an item {@item} by {id}", todoItem, id);
+// other logging
+
+```
 
 
 References:
 
 - [Serilog](https://github.com/serilog/serilog)
 - [Serilog | Getting Started](https://github.com/serilog/serilog/wiki/Getting-Started)
+- [Serilog | Structured Data](https://github.com/serilog/serilog/wiki/Structured-Data)
 - [net 6.0 Serilog example](https://github.com/datalust/dotnet6-serilog-example)
 - [Setting up Serilog in .NET 6](https://blog.datalust.co/using-serilog-in-net-6/)
 
