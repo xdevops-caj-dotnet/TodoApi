@@ -433,7 +433,60 @@ oc get route
 
 ```
 
-Access `https://todoitems-will-dotnet-demo.{CLUSTER_DOMAIN}/api/todoitems` to test APIs.
+Access `https://todoitems-will-dotnet-demo.<CLUSTER_DOMAIN>/api/todoitems` to test APIs.
 
 References:
 - <https://github.com/xdevops-caj-dotnet/myWebApp>
+
+
+## Logging
+
+If you have cluster admin right and haven't installed OpenShift Logging, follow [Install OpenShift Logging](https://docs.openshift.com/container-platform/4.9/logging/cluster-logging-deploying.html) to Install OpenShift logging:
+1. Install OpenShift Elasticsearch Operator
+2. Install Red Hat OpenShift Logging Operator
+3. Create OpenShift Logging Instance
+4. Define Kibana index patterns: 
+    - Index pattern: `app-*`
+    - Filter field: `@timestamp`
+
+
+### Kibana Discover
+
+Open Kibana from OpenShift shortcut, and open "Discover".
+
+Perform API test, and search related logs:
+
+```sql
+kubernetes.namespace_name="will-dotnet-demo" AND kubernetes.container_name=todoitems AND message=Entity
+```
+
+
+Discover features:
+- User query string to search
+  - Search matched
+  - Search error response or status
+- Add filter fields in the search
+  - Include matches
+  - Add matches
+- Customize search
+  - New search
+  - Save search
+  - Open saved search
+- Customize result fields (default is `time` and `Source`)
+  - Add fields from left avaiable fields (e.g select `message` field)
+- Customize time range (defualt is last 15 minutes)
+- Autorefresh
+  - Enable autorefresh logs and set autorefresh interval
+  - Disable autorefresh
+- Check log document (details)
+  - Expand the log record to see the log fields with table and json format.
+- Check log context
+  - Expand the log record, and click "View surrounding documents"
+
+
+References:
+- [Kibana | Using Discover](https://www.elastic.co/guide/en/kibana/6.8/tutorial-sample-discover.html)
+- [Kibana | Discover](https://www.elastic.co/guide/en/kibana/6.8/discover.html)
+- [Apache Lucene - Query Parser Syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html)
+- [Kibana Query String Syntax](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-query-string-query.html#query-string-syntax)
+- [Kibana Query Language Enahancements](https://www.elastic.co/guide/en/kibana/6.8/kuery-query.html)
