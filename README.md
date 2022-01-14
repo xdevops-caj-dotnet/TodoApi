@@ -441,6 +441,29 @@ References:
 
 ## Logging
 
+### Use Serilog in .NET 6
+
+Add Serilog packages:
+
+```bash
+dotnet add package Serilog.AspNetCore
+dotnet add package Serilog.Sinks.Console
+```
+
+A `Program.cs` [example](https://github.com/datalust/dotnet6-serilog-example/blob/dev/Program.cs)
+
+A `appsettings.json` [example](https://github.com/datalust/dotnet6-serilog-example/blob/dev/appsettings.json)
+
+
+
+References:
+
+- [Serilog](https://github.com/serilog/serilog)
+- [Serilog | Getting Started](https://github.com/serilog/serilog/wiki/Getting-Started)
+- [net 6.0 Serilog example](https://github.com/datalust/dotnet6-serilog-example)
+- [Setting up Serilog in .NET 6](https://blog.datalust.co/using-serilog-in-net-6/)
+
+### Install OpenShift Logging
 If you have cluster admin right and haven't installed OpenShift Logging, follow [Install OpenShift Logging](https://docs.openshift.com/container-platform/4.9/logging/cluster-logging-deploying.html) to Install OpenShift logging:
 1. Install OpenShift Elasticsearch Operator
 2. Install Red Hat OpenShift Logging Operator
@@ -490,3 +513,11 @@ References:
 - [Apache Lucene - Query Parser Syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html)
 - [Kibana Query String Syntax](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-query-string-query.html#query-string-syntax)
 - [Kibana Query Language Enahancements](https://www.elastic.co/guide/en/kibana/6.8/kuery-query.html)
+
+
+Besides search matched logs, you also can use Kibana Dashboard to analyze logs visually.
+
+References:
+- [Kibana Visualize](https://www.elastic.co/guide/en/kibana/6.8/visualize.html)
+- [Kibana Dashboard](https://www.elastic.co/guide/en/kibana/6.8/dashboard.html)
+- [THE TOP 24 KIBANA DASHBOARDS & VISUALISATIONS](https://logit.io/blog/post/the-top-kibana-dashboards-and-visualisations)
