@@ -456,16 +456,16 @@ A `Program.cs` [example](https://github.com/datalust/dotnet6-serilog-example/blo
 
 A `appsettings.json` [example](https://github.com/datalust/dotnet6-serilog-example/blob/dev/appsettings.json)
 
-In `TodoItemsControllers.cs`, use Serilog to log the API calls.
+In `TodoItemsControllers.cs`, use Serilog for API logging.
 
 ```c#
 using Serilog;
 
-// other codes
+// other codes...
 Log.Information("Retrive all todo items...");
 Log.Information("Retrieved an item: {@item}", todoItem);
 Log.Information("Update an item {@item} by {id}", todoItem, id);
-// other logging
+// other logging...
 
 ```
 
@@ -519,7 +519,7 @@ Discover features:
 - Check log document (details)
   - Expand the log record to see the log fields with table and json format.
 - Check log context
-  - Expand the log record, and click "View surrounding documents"
+  - Expand the log record, and click "View surrounding documents" (e.g. try to add duplciate items)
 
 
 References:
