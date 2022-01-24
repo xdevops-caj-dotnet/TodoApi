@@ -959,7 +959,13 @@ Alert states:
 
 
 
-TODO: Use ServiceMonitor object to scrap application exposed metrics.
+TODO: Use ServiceMonitor object to scrape application exposed metrics.
+
+
+
+References:
+
+- [Managing Metrics](https://docs.openshift.com/container-platform/4.9/monitoring/managing-metrics.html)
 
 
 
