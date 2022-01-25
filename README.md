@@ -649,6 +649,7 @@ Choose namespace as `will-dotnet-demo`.
 References:
 
 - [Accessing third-party UIs](https://docs.openshift.com/container-platform/4.9/monitoring/accessing-third-party-uis.html)
+- [Grafana Operator Dashboard doc](https://github.com/grafana-operator/grafana-operator/blob/master/documentation/dashboards.md)
 
 
 
@@ -989,7 +990,7 @@ For example, send notification by Email, or send notification to external system
 
 
 
-### Collect application metrics
+### Monitoring application metrics
 
 
 
@@ -997,6 +998,7 @@ References:
 
 - [Managing Metrics](https://docs.openshift.com/container-platform/4.9/monitoring/managing-metrics.html)
 - [ServiceMonitor spec](https://github.com/openshift/prometheus-operator/blob/release-4.5/Documentation/api.md#servicemonitorspec)
+- [Monitoring .NET Core applications on Kubernetes](https://developers.redhat.com/blog/2020/08/05/monitoring-net-core-applications-on-kubernetes#)
 
 
 
@@ -1020,7 +1022,7 @@ spec:
     scheme: http
   selector:
     matchLabels:
-      deployment: todoitems
+      app: todoitems
 EOF
 
 oc apply -f /tmp/servicemonitor.yaml -n will-dotnet-demo
@@ -1028,13 +1030,21 @@ oc apply -f /tmp/servicemonitor.yaml -n will-dotnet-demo
 
 
 
-Verify created servicemonitor:
+Ensure the ServiceMonitor can bind with service:
 
 ```bash
-oc get servicemonitor -n will-dotnet-demo -o yaml
+oc get svc -n will-dotnet-demo -l app=todoitems
 ```
 
 
+
+
+
+Verify created servicemonitor:
+
+```bash
+oc get servicemonitor todoitems-monitor -n will-dotnet-demo -o yaml
+```
 
 
 
@@ -1092,17 +1102,98 @@ Test `/metircs` endpoint locally: <http://localhost:{port}/metrics>
 
 
 
-#### Collect applicaiton metrics
-
-
+#### Import a Grafana dashboard
 
 Test `/metrics` endpoint in a pod:
 
 ```bash
-curl -v http://<servicename>.<namespace>t.svc.cluster.local:8080/metrics
+# curl -v http://<servicename>.<namespace>.svc.cluster.local:8080/metrics
+curl -v http://todoitems.will-dotnet-demo.svc.cluster.local:8080/metrics
 ```
 
 
+
+Import a [Grafana dashboard example](https://github.com/prometheus-net/grafana-dashboards) into custom Grafana
+
+
+
+
+
+Access custome Grafana (see above)
+
+```bash
+# Custom Grafana rout url
+oc get route -n will-grafana
+
+# admin password
+oc get secret grafana-admin-credentials -n will-grafana -o=jsonpath='{.data.GF_SECURITY_ADMIN_PASSWORD}' \
+| base64 -d
+```
+
+
+
+
+
+##### Import Grafana dashboard by dashboard id
+
+On Grafana, click Import, input a dashboard id, and then click "Load" button, and then choose a "folder", and then import.
+
+
+
+##### Import Grafana dashboard by Operator
+
+Open installed Grafana Operator in `will-grafana` namespace, and create a GrafanaDashboard instance:
+
+```yaml
+apiVersion: integreatly.org/v1alpha1
+kind: GrafanaDashboard
+metadata:
+  name: todoitems-dashboard
+  labels:
+    monitoring-key: grafana
+  namespace: will-grafana
+spec:
+  customFolderName: todotiems
+  url: 'https://grafana.com/api/dashboards/10915/revisions/4/download'
+```
+
+
+
+Notes:
+
+- The url is from the link of "Download JSON"
+- Sometimes it doesn't work due to version compability issue or missed plugins...you can manual import by dashboard id, and then copy json to import GrafanaDashboard via operator
+
+
+
+#### Troubleshooting
+
+
+
+TODO: Why can't collect user defined metrics?
+
+<https://docs.openshift.com/container-platform/4.9/monitoring/troubleshooting-monitoring-issues.html>
+
+
+
+Change log level :
+
+```yaml
+
+cat << EOF > /tmp/user-workload-monitoring-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-workload-monitoring-config
+  namespace: openshift-user-workload-monitoring
+data:
+  config.yaml: |
+    prometheusOperator:
+      logLevel: debug
+EOF
+
+oc apply -f /tmp/user-workload-monitoring-config.yaml -n openshift-user-workload-monitoring
+```
 
 
 
