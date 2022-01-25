@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
 using Serilog;
+using Prometheus;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -42,9 +43,16 @@ try
 
     app.UseHttpsRedirection();
 
+    // prometheus-net: ASP.NET Core HTTP request metrics
+    app.UseRouting();
+    app.UseHttpMetrics();
+    
     app.UseAuthorization();
 
     app.MapControllers();
+
+    // prometheus-net: ASP.NET Core exporter middleware
+    app.MapMetrics();
 
     app.Run();
 }

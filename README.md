@@ -644,13 +644,11 @@ Choose namespace as `will-dotnet-demo`.
 
 
 
+### Work with Custom dashboard
+
 References:
 
 - [Accessing third-party UIs](https://docs.openshift.com/container-platform/4.9/monitoring/accessing-third-party-uis.html)
-
-
-
-### Work with Custom dashboard
 
 
 
@@ -880,9 +878,27 @@ oc -n openshift-user-workload-monitoring get pod
 
 
 
+#### Grant user permission to monitor user-defined projects
+
+Grant user permission to normal user with below permissions:
+
+- `monitoring-rules-view`
+- `monitoring-rules-edit`
+- `monitoring-edit`
+
+
+
+References:
+
+- [Granting user permission to monitor user defined projects](https://docs.openshift.com/container-platform/4.9/monitoring/enabling-monitoring-for-user-defined-projects.html#granting-users-permission-to-monitor-user-defined-projects_enabling-monitoring-for-user-defined-projects)
+
+
+
 #### Create Promethues Rules for user defined project
 
 
+
+Create user defined prometheus rule:
 
 ```bash
 export NS=will-dotnet-demo
@@ -955,17 +971,136 @@ Alert states:
 
 
 
+#### Configure alerts notification
+
+References:
+
+- [Sending notifications to external systems](https://docs.openshift.com/container-platform/4.9/monitoring/managing-alerts.html#sending-notifications-to-external-systems_managing-alerts)
+
+
+
+In the **Administrator** perspective, navigate to **Administration** → **Cluster Settings** → **Configuration** → **Alertmanager**, and then create a new Receiver.
+
+
+
+For example, send notification by Email, or send notification to external system by webhook.
+
+
+
+
+
 ### Collect application metrics
-
-
-
-TODO: Use ServiceMonitor object to scrape application exposed metrics.
 
 
 
 References:
 
 - [Managing Metrics](https://docs.openshift.com/container-platform/4.9/monitoring/managing-metrics.html)
+- [ServiceMonitor spec](https://github.com/openshift/prometheus-operator/blob/release-4.5/Documentation/api.md#servicemonitorspec)
+
+
+
+#### Create ServiceMonitor object
+
+
+
+```yaml
+cat << EOF > /tmp/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: todoitems-monitor
+  name: todoitems-monitor
+  namespace: will-dotnet-demo
+spec:
+  endpoints:
+  - interval: 30s
+    port: tcp-8080
+    scheme: http
+  selector:
+    matchLabels:
+      deployment: todoitems
+EOF
+
+oc apply -f /tmp/servicemonitor.yaml -n will-dotnet-demo
+```
+
+
+
+Verify created servicemonitor:
+
+```bash
+oc get servicemonitor -n will-dotnet-demo -o yaml
+```
+
+
+
+
+
+#### Expose metrics endpoint
+
+Use prometheus supported clients to expose .NET 6 application metrics:
+
+- [App Metrics](https://github.com/AppMetrics/AppMetrics)
+- [prometheus-net](https://github.com/prometheus-net/prometheus-net) // Recommended!
+
+
+
+References:
+
+- [Instrumenting ASP.NET Core Application for exporting metrics to Prometheus](https://www.c-sharpcorner.com/article/instrumenting-asp-net-core-application-for-exporting-metrics-to-prometheus/)
+- [.NET Core Web API Metrics with Prometheus and Grafana](https://dale-bingham-soteriasoftware.medium.com/net-core-web-api-metrics-with-prometheus-and-grafana-fe84a52d9843)
+- [ASP.NET Core Metrics with Prometheus](https://aevitas.medium.com/expose-asp-net-core-metrics-with-prometheus-15e3356415f4)
+- <https://github.com/prometheus-net/prometheus-net#aspnet-core-exporter-middleware>
+- <https://github.com/prometheus-net/prometheus-net#aspnet-core-http-request-metrics>
+
+
+
+Add prometheus-net packages:
+
+```bash
+dotnet add package prometheus-net.AspNetCore
+```
+
+
+
+Modify `Program.cs` to add below "prometheus-net" statements:
+
+```c#
+using Prometheus;
+
+// ...
+
+// prometheus-net: ASP.NET Core HTTP request metrics
+app.UseRouting();
+app.UseHttpMetrics();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+// prometheus-net: ASP.NET Core exporter middleware
+app.MapMetrics();
+
+app.Run();
+```
+
+
+
+Test `/metircs` endpoint locally: <http://localhost:{port}/metrics>
+
+
+
+#### Collect applicaiton metrics
+
+
+
+Test `/metrics` endpoint in a pod:
+
+```bash
+curl -v http://<servicename>.<namespace>t.svc.cluster.local:8080/metrics
+```
 
 
 
