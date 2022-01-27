@@ -410,8 +410,20 @@ Or access `https://localhost:{port}/swagger` to use Swagger UI to test APIs.
 
 Use Data Transfer Object (DTO) to [prevent over-posting](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-6.0&tabs=visual-studio-code#prevent-over-posting).
 
-
 ## Depoy to OpenShift
+
+Import `dotnet:6.0-ubi8` image firstly:
+
+```bash
+oc import-image dotnet:6.0-ubi8 \
+  --from=registry.access.redhat.com/ubi8/dotnet-60:6.0 \
+  --confirm \
+  -n openshift
+```
+
+
+
+Deploy .NET application to OpenShift:
 
 ```bash
 # Create openshift namespace
@@ -998,6 +1010,8 @@ References:
 
 - [Managing Metrics](https://docs.openshift.com/container-platform/4.9/monitoring/managing-metrics.html)
 - [ServiceMonitor spec](https://github.com/openshift/prometheus-operator/blob/release-4.5/Documentation/api.md#servicemonitorspec)
+- [Prometheus Exporters](https://prometheus.io/docs/instrumenting/exporters/)
+- [Prometheus communith Helm charts](https://github.com/prometheus-community/helm-charts)
 - [Monitoring .NET Core applications on Kubernetes](https://developers.redhat.com/blog/2020/08/05/monitoring-net-core-applications-on-kubernetes#)
 
 
@@ -1007,26 +1021,25 @@ References:
 
 
 ```yaml
-cat << EOF > /tmp/servicemonitor.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  labels:
-    app: todoitems-monitor
   name: todoitems-monitor
-  namespace: will-dotnet-demo
 spec:
   endpoints:
   - interval: 30s
-    port: tcp-8080
+    port: web
     scheme: http
   selector:
     matchLabels:
       app: todoitems
-EOF
-
-oc apply -f /tmp/servicemonitor.yaml -n will-dotnet-demo
 ```
+
+
+
+Notes: 
+
+- The `port: web` is align with `todotiems` service `port.name. ?
 
 
 
@@ -1038,13 +1051,21 @@ oc get svc -n will-dotnet-demo -l app=todoitems
 
 
 
-
-
 Verify created servicemonitor:
 
 ```bash
 oc get servicemonitor todoitems-monitor -n will-dotnet-demo -o yaml
 ```
+
+
+
+Add label for the namespace:
+
+```bash
+oc label ns will-dotnet-demo openshift.io/cluster-monitoring=true
+```
+
+
 
 
 
@@ -1166,13 +1187,21 @@ Notes:
 
 
 
-#### Troubleshooting
+## Troubleshooting
 
 
 
-TODO: Why can't collect user defined metrics?
+TODO: Why can't collect user defined metrics? also can't find the related Prometheus targets (Prometheus UI, Status / Targets).
 
 <https://docs.openshift.com/container-platform/4.9/monitoring/troubleshooting-monitoring-issues.html>
+
+
+
+Check by Prometheus UI
+
+- Status / Targets
+- Status / Service Discovery
+- Status / Configuration
 
 
 
@@ -1197,3 +1226,44 @@ oc apply -f /tmp/user-workload-monitoring-config.yaml -n openshift-user-workload
 
 
 
+Check prometheus servciemonitor match logic:
+
+```bash
+oc get prometheus k8s -o yaml | less
+```
+
+
+
+Example:
+
+```yaml
+serviceMonitorNamespaceSelector:
+    matchLabels:
+      openshift.io/cluster-monitoring: "true"
+  serviceMonitorSelector: {}
+```
+
+
+
+Label the namespace:
+
+```bash
+# add labels for namespace
+oc label ns <namespace> openshift.io/cluster-monitoring=true
+
+# verify
+oc describe ns will-test
+```
+
+
+
+Another issue? OCP version ? Prometheus RBAC ?
+
+
+
+## Further Reading
+
+- [How Prometheus Monitoring works | Prometheus Architecture explained](https://www.youtube.com/watch?v=h4Sl21AKiDg)
+
+- [Setup Prometheus Monitoring on Kubernetes using Helm and Prometheus Operator | Part 1](https://www.youtube.com/watch?v=QoDqxm7ybLc)
+- [Prometheus Monitoring - Steps to monitor third-party apps using Prometheus Exporter | Part 2](https://www.youtube.com/watch?v=mLPg49b33sA)
