@@ -1028,7 +1028,7 @@ metadata:
 spec:
   endpoints:
   - interval: 30s
-    port: web
+    port: 8080-tcp
     scheme: http
   selector:
     matchLabels:
@@ -1039,7 +1039,8 @@ spec:
 
 Notes: 
 
-- The `port: web` is align with `todotiems` service `port.name. ?
+- The `port` MUST matches with service port name
+- The `matchLabels` MUST matches with service labels
 
 
 
@@ -1258,6 +1259,10 @@ oc describe ns will-test
 
 
 Another issue? OCP version ? Prometheus RBAC ?
+
+
+
+The issue is resolved, please see <https://github.com/prometheus-operator/prometheus-operator/issues/1957>
 
 
 
